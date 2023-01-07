@@ -2,6 +2,7 @@ package id.kawahedukasi.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -9,42 +10,90 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "item")
-@MappedSuperclass
-public class Item extends PanacheEntityBase {
+public class Item extends PanacheEntityBase{
     @Id
-    @SequenceGenerator(
-            name = "itemSequence",
-            sequenceName = "item_sequence",
-            initialValue = 1,
-            allocationSize = 1
-    )
-    @GeneratedValue(generator = "itemSequence", strategy = GenerationType.SEQUENCE)
+    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(generator = "uuid")
+    @Column(name = "id", nullable = false, length = 36)
+    private String id;
 
-    @Column(name = "id")
-    public Integer id;
+    @Column(name = "name", nullable = false, length = 50)
+    private String name;
 
-    @Column(name = "name")
-    public String name;
+    @Column(name = "price", nullable = false)
+    private Double price;
 
-    @Column(name = "count")
-    public Integer count;
+    @Column(name = "count", nullable = false)
+    private Long count;
 
-    @Column(name = "price")
-    public Integer price;
+    @Column(name = "type", nullable = false, length = 20)
+    private String type;
 
-    @Column(name = "type")
-    public String type;
-
-    @Column(name = "description")
-    public String description;
+    @Column(name = "description", columnDefinition = "text")
+    private String description;
 
     @CreationTimestamp
-    @Column(name = "created_at")
-    public LocalDateTime createdAt;
+    @Column(name = "createdAt_at")
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
-    public LocalDateTime updatedAt;
+    @Column(name = "update_at")
+    private LocalDateTime updatedAt;
+
+    public Item(){
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public Long getCount() {
+        return count;
+    }
+
+    public void setCount(Long count) {
+        this.count = count;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
 }
 
