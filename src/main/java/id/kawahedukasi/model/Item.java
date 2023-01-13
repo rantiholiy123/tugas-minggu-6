@@ -11,6 +11,14 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "item")
 public class Item extends PanacheEntityBase{
+
+    @SequenceGenerator(
+            name = "itemSequence",
+            sequenceName = "item_sequence",
+            initialValue = 1,
+            allocationSize = 1
+    )
+
     @Id
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     @GeneratedValue(generator = "uuid")
@@ -33,11 +41,11 @@ public class Item extends PanacheEntityBase{
     private String description;
 
     @CreationTimestamp
-    @Column(name = "createdAt_at")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "update_at")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public Item(){

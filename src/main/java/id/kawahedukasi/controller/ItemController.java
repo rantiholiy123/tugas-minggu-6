@@ -1,8 +1,13 @@
 package id.kawahedukasi.controller;
 
 import id.kawahedukasi.model.Item;
+import id.kawahedukasi.service.ItemService;
+import id.kawahedukasi.service.ReportService;
+import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.core.json.JsonObject;
+import net.sf.jasperreports.engine.JRException;
 
+import javax.inject.Inject;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,41 +25,23 @@ import java.util.Map;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ItemController {
-    @SequenceGenerator(
-            name = "itemSequence",
-            sequenceName = "item_sequence",
-            initialValue = 1,
-            allocationSize = 1
-    )
-    @GeneratedValue(generator = "itemSequence", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id")
-    public Integer id;
+
+    @Inject
+    ItemService itemService;
+
+    @Inject
+    ReportService reportService;
+
+    @GET
+    @Path("/report")
+    @Produces("application/pdf")
+    public Response create() throws JRException {
+        return reportService.exportJasper();
+    }
 
     @POST
-    @Transactional
     public Response create(JsonObject request){
-        String name = request.getString("name");
-        Long count = request.getLong("count");
-        String type = request.getString("type");
-        Double price = request.getDouble("price");
-
-        if (name == null || price == null || type == null || count == null){
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("message", "BAD_REQUEST"))
-                    .build();
-        }
-
-        Item item = new Item();
-        item.setName(name);
-        item.setCount(count);
-        item.setType(type);
-        item.setPrice(price);
-        item.setDescription(request.getString("description"));
-
-        item.persist();
-
-        return Response.status(Response.Status.CREATED).entity(Map.of("id", item.getId())).build();
+        return itemService.create(request);
     }
 
     @GET
