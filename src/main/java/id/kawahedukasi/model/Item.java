@@ -28,14 +28,14 @@ public class Item extends PanacheEntityBase{
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @Column(name = "price", nullable = false)
-    private Double price;
-
     @Column(name = "count", nullable = false)
     private Long count;
 
     @Column(name = "type", nullable = false, length = 20)
     private String type;
+
+    @Column(name = "price", nullable = false)
+    private Double price;
 
     @Column(name = "description", columnDefinition = "text")
     private String description;
@@ -63,14 +63,6 @@ public class Item extends PanacheEntityBase{
         this.name = name;
     }
 
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
     public Long getCount() {
         return count;
     }
@@ -85,6 +77,14 @@ public class Item extends PanacheEntityBase{
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     public String getDescription() {

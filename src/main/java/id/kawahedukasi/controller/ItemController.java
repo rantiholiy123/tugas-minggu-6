@@ -1,22 +1,15 @@
 package id.kawahedukasi.controller;
 
-import id.kawahedukasi.model.Item;
 import id.kawahedukasi.service.ItemService;
 import id.kawahedukasi.service.ReportService;
-import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.core.json.JsonObject;
 import net.sf.jasperreports.engine.JRException;
 
 import javax.inject.Inject;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.SequenceGenerator;
-import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
+import javax.xml.bind.ValidationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,76 +34,57 @@ public class ItemController {
 
     @POST
     public Response create(JsonObject request){
-        return itemService.create(request);
+        try {
+            Map<String, Object> data = itemService.create(request);
+            Map<String, Object> result = new HashMap<>();
+            result.put("data", data);
+            return Response.status(Response.Status.CREATED).entity(result).build();
+        } catch (ValidationException e){
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
+        }
+
     }
 
     @GET
     public Response getAll(){
-        List<Item> items = Item.listAll();
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (Item item : items){
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", item.getId());
-            map.put("name", item.getName());
-            map.put("count", item.getCount());
-            map.put("type", item.getType());
-            map.put("price", item.getPrice());
-            map.put("description", item.getDescription());
-
-            result.add(map);
-        }
+        List<Map<String, Object>> data = itemService.getAll();
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", data);
         return Response.ok().entity(result).build();
     }
 
     @PUT
     @Path("/{id}")
-    @Transactional
     public Response update(@PathParam("id") String id, JsonObject request){
-        String name = request.getString("name");
-        Long count = request.getLong("count");
-        String type = request.getString("type");
-        Double price = request.getDouble("price");
+        try {
+            Map<String, Object> data = itemService.update(id, request);
+            Map<String, Object> result = new HashMap<>();
+            result.put("data", data);
 
-        if (name == null || price == null || type == null || count == null){
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("message", "BAD_REQUEST"))
-                    .build();
+            return Response.ok().entity(result).build();
+        } catch (ValidationException e){
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
         }
 
-        Item item = Item.findById(id);
-        if (item ==  null){
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("message", "ITEM_NOT_FOUND"))
-                    .build();
-
-        }
-
-
-        item.setName(name);
-        item.setCount(count);
-        item.setType(type);
-        item.setPrice(price);
-
-        item.persist();
-
-        return Response.ok().entity(Map.of("id", item.getId())).build();
     }
 
     @DELETE
     @Path("/{id}")
-    @Transactional
     public Response delete(@PathParam("id") String id){
-        Item item = Item.findById(id);
-        if (item ==  null) {
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("message", "ITEM_ALLREADY_DELETE"))
-                    .build();
-        }
-        item.delete();
+        try {
+            Map<String, Object> data = itemService.delete(id);
+            Map<String, Object> result = new HashMap<>();
+            result.put("data", data);
 
-        return Response.status(Response.Status.NO_CONTENT).entity(Map.of("id", item.getId())).build();
+            return Response.ok().entity(result).build();
+        } catch (ValidationException e) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
+        }
     }
 }
